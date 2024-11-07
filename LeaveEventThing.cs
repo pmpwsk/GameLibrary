@@ -1,6 +1,6 @@
 namespace uwap.GameLibrary;
 
-public abstract class LeaveEventThing : Thing
+public interface LeaveEventThing : Thing
 {
-    public abstract bool OnLeave(Thing sender);
+    public bool OnLeave(Thing sender);
 }

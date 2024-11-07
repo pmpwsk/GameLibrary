@@ -9,6 +9,10 @@ public abstract class MovingThing : Thing
     
     private int Y;
 
+    public virtual ConsoleColor? BackgroundColor => throw new NotImplementedException();
+
+    public virtual Content? Content => throw new NotImplementedException();
+
     public MovingThing(Level level, int x, int y)
     {
         Level = level;

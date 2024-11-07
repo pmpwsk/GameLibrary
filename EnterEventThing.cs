@@ -1,6 +1,6 @@
 namespace uwap.GameLibrary;
 
-public abstract class EnterEventThing : Thing
+public interface EnterEventThing : Thing
 {
-    public abstract bool OnEnter(Thing sender);
+    public bool OnEnter(Thing sender);
 }

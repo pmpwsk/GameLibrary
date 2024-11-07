@@ -1,5 +1,5 @@
 namespace uwap.GameLibrary;
 
-public abstract class SolidThing : Thing
+public interface SolidThing : Thing
 {
 }
