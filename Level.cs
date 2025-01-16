@@ -6,25 +6,40 @@ public class Level
 
     public int Height;
 
+    public int ViewWidth;
+
+    public int ViewHeight;
+
+    public int ViewX;
+    
+    public int ViewY;
+
     public int CursorOffsetY;
 
     public List<Thing>[,] Fields;
 
     public Func<ConsoleKey,bool> KeyFunction = key => true;
 
-    public Level(int width, int height, List<Thing>[,] fields)
+    public Level(int width, int height, int viewWidth, int viewHeight, List<Thing>[,] fields)
     {
         Width = width;
         Height = height;
+        ViewWidth = viewWidth;
+        ViewHeight = viewHeight;
+        ViewX = 0;
+        ViewY = 0;
         Fields = fields;
         CursorOffsetY = 0;
     }
 
     public void RedrawField(int x, int y)
     {
-        Console.CursorLeft = x*2;
-        Console.CursorTop += y - CursorOffsetY;
-        CursorOffsetY = y;
+        if (x < ViewX || y < ViewY || x >= ViewX + ViewWidth || y >= ViewY + ViewHeight)
+            return;
+        
+        Console.CursorLeft = (x - ViewX) * 2;
+        Console.CursorTop += (y - ViewY) - CursorOffsetY;
+        CursorOffsetY = y - ViewY;
         DrawField(x, y);
         Console.ResetColor();
     }
@@ -32,8 +47,8 @@ public class Level
     public void ResetCursor()
     {
         Console.CursorLeft = 0;
-        Console.CursorTop += Height - CursorOffsetY;
-        CursorOffsetY = Height;
+        Console.CursorTop += ViewHeight - CursorOffsetY;
+        CursorOffsetY = ViewHeight;
     }
 
     private void DrawField(int x, int y)
@@ -64,9 +79,9 @@ public class Level
 
     public void PrintToConsole()
     {
-        for (int y = 0; y < Height; y++)
+        for (int y = ViewY; y < ViewY + ViewHeight; y++)
         {
-            for (int x = 0; x < Width; x++)
+            for (int x = ViewX; x < ViewX + ViewWidth; x++)
             {
                 DrawField(x, y);
             }
@@ -74,7 +89,7 @@ public class Level
             Console.ResetColor();
             Console.WriteLine();
         }
-        CursorOffsetY = Height;
+        CursorOffsetY = ViewHeight;
     }
 
     public void Run()
@@ -87,5 +102,21 @@ public class Level
                 return;
             }
         }
+    }
+    
+    public void ScrollTo(int x, int y)
+    {
+        if (x >= 0 && x <= Width - ViewWidth && y >= 0 && y <= Height - ViewHeight)
+        {   
+            ViewX = x;
+            ViewY = y;
+            Console.CursorTop -= CursorOffsetY;
+            PrintToConsole();
+        }
+    }
+
+    public void ScrollBy(int xOffset, int yOffset)
+    {
+        ScrollTo(ViewX + xOffset, ViewY + yOffset);
     }
 }
