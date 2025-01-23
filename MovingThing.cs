@@ -1,9 +1,8 @@
-using uwap.GameLibrary;
+namespace uwap.GameLibrary;
 
 public abstract class MovingThing : Thing
 {
-
-    private Level Level;
+    private readonly Level Level;
 
     private int X;
     
@@ -13,7 +12,7 @@ public abstract class MovingThing : Thing
 
     public virtual Content? Content => throw new NotImplementedException();
 
-    public MovingThing(Level level, int x, int y)
+    protected MovingThing(Level level, int x, int y)
     {
         Level = level;
         X = x;
@@ -40,10 +39,10 @@ public abstract class MovingThing : Thing
             Y = y;
 
             bool stop = false;
-            foreach (Thing thing in oldField)
+            foreach (var thing in oldField)
                 if (thing is LeaveEventThing t && t.OnLeave(this))
                     stop = true;
-            foreach (Thing thing in newField)
+            foreach (var thing in newField)
                 if (thing != this && thing is EnterEventThing t && t.OnEnter(this))
                     stop = true;
             return stop;

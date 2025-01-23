@@ -1,54 +1,41 @@
 namespace uwap.GameLibrary;
 
-public class Level
+public class Level(int width, int height, int viewWidth, int viewHeight, List<Thing>[,] fields)
 {
-    public int Width;
+    public int Width = width;
 
-    public int Height;
+    public int Height = height;
 
-    public int ViewWidth;
+    public int ViewWidth = viewWidth;
 
-    public int ViewHeight;
+    public int ViewHeight = viewHeight;
 
-    public int ViewX;
+    public int ViewX = 0;
     
-    public int ViewY;
+    public int ViewY = 0;
 
-    public int CursorOffsetY;
+    public int CursorOffsetY = 0;
 
-    public List<Thing>[,] Fields;
+    public List<Thing>[,] Fields = fields;
 
-    public Func<ConsoleKey,bool> KeyFunction = key => true;
-
-    public Level(int width, int height, int viewWidth, int viewHeight, List<Thing>[,] fields)
-    {
-        Width = width;
-        Height = height;
-        ViewWidth = viewWidth;
-        ViewHeight = viewHeight;
-        ViewX = 0;
-        ViewY = 0;
-        Fields = fields;
-        CursorOffsetY = 0;
-    }
+    public Func<ConsoleKey,bool> KeyFunction = _ => true;
 
     public void RedrawField(int x, int y)
     {
         if (x < ViewX || y < ViewY || x >= ViewX + ViewWidth || y >= ViewY + ViewHeight)
             return;
         
-        Console.CursorLeft = (x - ViewX) * 2;
-        Console.CursorTop += (y - ViewY) - CursorOffsetY;
-        CursorOffsetY = y - ViewY;
+        Console.SetCursorPosition(
+            (x - ViewX) * 2,
+            CursorOffsetY + y - ViewY
+        );
         DrawField(x, y);
         Console.ResetColor();
     }
 
     public void ResetCursor()
     {
-        Console.CursorLeft = 0;
-        Console.CursorTop += ViewHeight - CursorOffsetY;
-        CursorOffsetY = ViewHeight;
+        Console.SetCursorPosition(0, CursorOffsetY + ViewHeight);
     }
 
     private void DrawField(int x, int y)
@@ -56,7 +43,7 @@ public class Level
         List<Thing> things = Fields[x, y];
         ConsoleColor? background = null;
         Content? content = null;
-        foreach (Thing thing in things)
+        foreach (var thing in things)
         {
             if (thing.BackgroundColor != null)
                 background = thing.BackgroundColor;
@@ -79,6 +66,8 @@ public class Level
 
     public void PrintToConsole()
     {
+        Console.Clear();
+        
         for (int y = ViewY; y < ViewY + ViewHeight; y++)
         {
             for (int x = ViewX; x < ViewX + ViewWidth; x++)
@@ -89,7 +78,6 @@ public class Level
             Console.ResetColor();
             Console.WriteLine();
         }
-        CursorOffsetY = ViewHeight;
     }
 
     public void Run()
@@ -110,7 +98,6 @@ public class Level
         {   
             ViewX = x;
             ViewY = y;
-            Console.CursorTop -= CursorOffsetY;
             PrintToConsole();
         }
     }
