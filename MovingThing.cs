@@ -2,11 +2,11 @@ namespace uwap.GameLibrary;
 
 public abstract class MovingThing : Thing
 {
-    private readonly Level Level;
+    protected readonly Level Level;
 
-    private int X;
+    public int X;
     
-    private int Y;
+    public int Y;
 
     public virtual ConsoleColor? BackgroundColor => throw new NotImplementedException();
 
@@ -25,16 +25,21 @@ public abstract class MovingThing : Thing
         {
             if (Level.Fields[x, y].Any(obj => obj is SolidThing))
                 return false;
+            
+            Global.ConsoleLock.EnterWriteLock();
 
             List<Thing> oldField = Level.Fields[X, Y];
             oldField.Remove(this);
-            Level.RedrawField(X, Y);
+            Level.RedrawFieldWithoutLocking(X, Y);
 
             List<Thing> newField = Level.Fields[x, y];
             newField.Add(this);
-            Level.RedrawField(x, y);
+            Level.RedrawFieldWithoutLocking(x, y);
 
             Level.ResetCursor();
+            
+            Global.ConsoleLock.ExitWriteLock();
+            
             X = x;
             Y = y;
 

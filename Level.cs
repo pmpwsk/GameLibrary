@@ -22,6 +22,13 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
 
     public void RedrawField(int x, int y)
     {
+        Global.ConsoleLock.EnterWriteLock();
+        RedrawFieldWithoutLocking(x, y);
+        Global.ConsoleLock.ExitWriteLock();
+    }
+    
+    internal void RedrawFieldWithoutLocking(int x, int y)
+    {
         if (x < ViewX || y < ViewY || x >= ViewX + ViewWidth || y >= ViewY + ViewHeight)
             return;
         
@@ -46,8 +53,11 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
         foreach (var thing in things)
         {
             if (thing.BackgroundColor != null)
+            {
                 background = thing.BackgroundColor;
-            if (thing.Content != null)
+                content = thing.Content;
+            }
+            else if (thing.Content != null)
                 content = thing.Content;
         }
         if (background == null || content == null)
@@ -68,6 +78,9 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
     {
         Console.Clear();
         
+        for (int i = 0; i < CursorOffsetY; i++)
+            Console.WriteLine();
+        
         for (int y = ViewY; y < ViewY + ViewHeight; y++)
         {
             for (int x = ViewX; x < ViewX + ViewWidth; x++)
@@ -80,9 +93,12 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
         }
     }
 
-    public void Run()
+    public void Run(Action? actionOnPrinted = null)
     {
         PrintToConsole();
+        
+        actionOnPrinted?.Invoke();
+        
         while (true)
         {
             if (KeyFunction(Console.ReadKey(true).Key))
@@ -94,12 +110,14 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
     
     public void ScrollTo(int x, int y)
     {
+        Global.ConsoleLock.EnterWriteLock();
         if (x >= 0 && x <= Width - ViewWidth && y >= 0 && y <= Height - ViewHeight)
         {   
             ViewX = x;
             ViewY = y;
             PrintToConsole();
         }
+        Global.ConsoleLock.ExitWriteLock();
     }
 
     public void ScrollBy(int xOffset, int yOffset)
