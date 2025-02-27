@@ -111,12 +111,20 @@ public class Level(int width, int height, int viewWidth, int viewHeight, List<Th
     public void ScrollTo(int x, int y)
     {
         Global.ConsoleLock.EnterWriteLock();
-        if (x >= 0 && x <= Width - ViewWidth && y >= 0 && y <= Height - ViewHeight)
-        {   
-            ViewX = x;
-            ViewY = y;
-            PrintToConsole();
-        }
+        
+        if (x < 0)
+            x = 0;
+        if (x > Width - ViewWidth)
+            x = Width - ViewWidth;
+        if (y < 0)
+            y = 0;
+        if (y > Height - ViewHeight)
+            y = Height - ViewHeight;
+        
+        ViewX = x;
+        ViewY = y;
+        PrintToConsole();
+        
         Global.ConsoleLock.ExitWriteLock();
     }
 
